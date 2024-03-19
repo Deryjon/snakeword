@@ -103,41 +103,89 @@ function moreletter() {
   points += word.length;
   document.getElementById("points").innerText = points;
 }
-function nearCheck(id, ids) {
-  var near = false;
-  edge = parseInt(edge);
+  function nearCheck(id, ids) {
+    
+  // document.addEventListener("DOMContentLoaded", function() {
+  //   // Устанавливаем время обратного отсчета в минутах
+    
+  //   // Функция для обновления таймера каждую секунду
+    
+    
+  //   // Вызываем функцию updateTimer каждую секунду
+  // });
+    var near = false;
+    edge = parseInt(edge);
+    
+    var timeInMinutes = 10;
+    // Вычисляем общее количество секунд
+    var totalTimeInSeconds = timeInMinutes * 60;
+    // Получаем элемент, в котором будет отображаться таймер
+    var timerDisplay = document.getElementById('timer');
 
-  id = parseInt(id);
-  iTem = ids[ids.length - 2];
-  if (iTem + 1 == id) {
-    near = true;
-    console.info(id, iTem);
+    function updateTimer() {
+      // Получаем минуты и секунды из общего количества секунд
+      var minutes = Math.floor(totalTimeInSeconds / 60);
+      var seconds = totalTimeInSeconds % 60;
+  
+      // Форматируем вывод минут и секунд (добавляем ведущий ноль, если нужно)
+      var formattedMinutes = (minutes < 10) ? '0' + minutes : minutes;
+      var formattedSeconds = (seconds < 10) ? '0' + seconds : seconds;
+  
+      // Обновляем отображение таймера
+      timerDisplay.textContent = formattedMinutes + ':' + formattedSeconds;
+  
+      // Проверяем, закончился ли отсчет времени
+      if (totalTimeInSeconds < 0) {
+          clearInterval(timerInterval);
+          timerDisplay.textContent = "Время истекло!";
+          // Здесь можно добавить дополнительные действия после окончания отсчета
+      } else if (totalTimeInSeconds <= 60) {
+          // Если осталась одна минута или меньше, меняем цвет таймера на красный
+          timerDisplay.style.color = "red";
+      }
+  
+      // Уменьшаем общее количество секунд на одну секунду
+      totalTimeInSeconds--;
   }
-  if (iTem - 1 == id) {
-    near = true;
-    console.info(id, iTem);
+  
+
+    id = parseInt(id);
+    iTem = ids[ids.length - 2];
+    if (iTem + 1 == id) {
+      near = true;
+      console.info(id, iTem);
+    }
+    if (ids.length == 1) {
+      console.log(2); 
+      var timerInterval = setInterval(updateTimer, 1000);
+
+    }
+    if (iTem - 1 == id) {
+      near = true;
+      console.info(id, iTem);
+    }
+    if (iTem + edge == id) {
+      near = true;
+      console.info(id, iTem);
+    }
+    if (iTem - edge == id) {
+      near = true;
+      console.info(id, iTem);
+    }
+    if ((iTem + 1) % edge == 0 && id % edge == 0) {
+      near = false;
+      console.info(id, iTem);
+    }
+    if (iTem % edge == 0 && (id + 1) % edge == 0) {
+      near = false;
+      console.info(id, iTem);
+    }
+    if (ids.length == 2) {
+      console.log(2); // TODO: case for 2 to letters words
+    }
+    return near;
+    
   }
-  if (iTem + edge == id) {
-    near = true;
-    console.info(id, iTem);
-  }
-  if (iTem - edge == id) {
-    near = true;
-    console.info(id, iTem);
-  }
-  if ((iTem + 1) % edge == 0 && id % edge == 0) {
-    near = false;
-    console.info(id, iTem);
-  }
-  if (iTem % edge == 0 && (id + 1) % edge == 0) {
-    near = false;
-    console.info(id, iTem);
-  }
-  if (ids.length == 2) {
-    console.log(2); // TODO: case for 2 to letters words
-  }
-  return near;
-}
 
 var timeout0 = setTimeout(clear, 2500);
 async function getTranslate(lang, toLang, word) {
@@ -179,39 +227,39 @@ async function collectWord(Id, id, ...args) {
 
   nearCheck(id, ids);
 
-  if (isDict(word) > 0 && word.length >= 3 && nearCheck(id, ids)) {
-    //    getTranslate('en','ru',word);
-    if (isFinded(word) >= 0 && findwords.indexOf(word)) {
-      findwords.splice(findwords.indexOf(word), 1);
-      findwords.push(word);
-      timeout0 = setTimeout(clear, 2500);
-    }
-    //stop dubles
-    if (isFinded(word) < 0) {
-      moreletter();
-      if (args.length === 0) {
-        findwordids.push(ids);
-        createImgDialog(constructorSearchUrl(word));
+    if (isDict(word) > 0 && word.length >= 3 && nearCheck(id, ids)) {
+      //    getTranslate('en','ru',word);
+      if (isFinded(word) >= 0 && findwords.indexOf(word)) {
+        findwords.splice(findwords.indexOf(word), 1);
+        findwords.push(word);
+        timeout0 = setTimeout(clear, 2500);
+      }
+      //stop dubles
+      if (isFinded(word) < 0) {
+        moreletter();
+        if (args.length === 0) {
+          findwordids.push(ids);
+          createImgDialog(constructorSearchUrl(word));
+        }
+
+        var userLang = navigator.language || navigator.userLanguage;
+
+        socket.send(
+          JSON.stringify({
+            field: letters.join(""),
+            findwordids,
+          })
+        );
+        translate = await getTranslate(language, userLang, word);
+        translatedwords.push(translate);
+        timeout0 = setTimeout(clear, 2500);
+        //        s.send(JSON.stringify({"field":letters.join(''), "word": ids,"user": getCookie("username")}));
+        ids = [];
       }
 
-      var userLang = navigator.language || navigator.userLanguage;
-
-      socket.send(
-        JSON.stringify({
-          field: letters.join(""),
-          findwordids,
-        })
-      );
-      translate = await getTranslate(language, userLang, word);
-      translatedwords.push(translate);
-      timeout0 = setTimeout(clear, 2500);
-      //        s.send(JSON.stringify({"field":letters.join(''), "word": ids,"user": getCookie("username")}));
-      ids = [];
-    }
-
-    listfindedwords(word, isFinded(word));
-  } else timeout0 = setTimeout(clear, 2500);
-}
+      listfindedwords(word, isFinded(word));
+    } else timeout0 = setTimeout(clear, 2500);
+  }
 
 function listfindedwords(word, findindex) {
   var tally = document.getElementById("gametally");
@@ -271,6 +319,9 @@ function cutWord() {
 
 const cutButton = document.getElementById("cut-btn");
 cutButton.addEventListener("click", cutWord);
+
+
+
 
 function SaveGame_old() {
   var link =
