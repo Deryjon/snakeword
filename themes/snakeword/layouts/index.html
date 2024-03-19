@@ -1,7 +1,14 @@
 {{ define "main" }}
 <div id="main">
   <div class="header">
-    <div class="pure-form" style="display: flex; justify-content: space-between; justify-content: center">
+    <div
+      class="pure-form"
+      style="
+        display: flex;
+        justify-content: space-between;
+        justify-content: center;
+      "
+    >
       <span
         class="point-button pure-button-active"
         id="points"
@@ -18,9 +25,7 @@
         title="{{ .Site.Params.Cut}}"
         ><i class="fa-solid fa-delete-left"></i>
       </span>
-     
-        <span id="timer">10:00</span>
-    
+      <span id="timer">10:00</span>
     </div>
   </div>
   <div class="content">
